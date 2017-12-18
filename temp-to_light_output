@@ -1,0 +1,59 @@
+// We'll use analog input 0 to measure the temperature sensor's
+// signal pin.
+
+const int temperaturePin = A0;
+
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(7, OUTPUT);
+    pinMode(6, OUTPUT); 
+    pinMode(5, OUTPUT);
+    pinMode(4, OUTPUT);  
+}
+
+void loop() {
+ 
+ float voltage, degreesC, degreesF; //Declare 3 floating point variables
+
+  voltage = getVoltage(temperaturePin); //Measure the voltage at the analog pin
+  degreesC = (voltage - 0.5) * 100.0; // Convert the voltage to degrees Celsius
+  degreesF = degreesC * (9.0 / 5.0) + 32.0; //Convert degrees Celsius to Fahrenheit
+  
+  Serial.print("voltage: ");
+  Serial.print(voltage);
+  Serial.print("  deg C: ");
+  Serial.print(degreesC);
+  Serial.print("  deg F: ");
+  Serial.println(degreesF);
+
+  digitalWrite(7, LOW);
+  digitalWrite(6, LOW);
+  digitalWrite(5, LOW);
+  digitalWrite(4, LOW);
+
+  if (degreesF >= 71)
+  {
+    digitalWrite(5, HIGH);
+  }
+  else if  (degreesF <= 68)
+  {
+    digitalWrite(7, HIGH);
+  }
+  else
+  {
+    digitalWrite(6, HIGH);
+  }
+  
+  delay(1000); // repeat once per second (change as you wish!)
+}
+
+float getVoltage(int pin)
+
+{
+
+  return (analogRead(pin) * 0.004882814); 
+  // This equation converts the 0 to 1023 value that analogRead()
+  // returns, into a 0.0 to 5.0 value that is the true voltage
+  // being read at that pin.
+}

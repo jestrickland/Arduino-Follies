@@ -1,0 +1,72 @@
+// Reference URL: https://arduinodiy.wordpress.com/2015/11/10/measuring-temperature-with-ntc-the-steinhart-hart-formula/
+// We'll use analog input 0 to measure the temperature sensor's
+// signal pin.
+
+byte NTCPin = A0;
+#define SERIESRESISTOR 10000
+#define NOMINAL_RESISTANCE 10000
+#define NOMINAL_TEMPERATURE 25
+#define BCOEFFICIENT 3950
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(7, OUTPUT);
+    pinMode(6, OUTPUT); 
+    pinMode(5, OUTPUT);
+    pinMode(4, OUTPUT);  
+}
+
+void loop() {
+ 
+float ADCvalue;
+float Resistance;
+float Voltage;
+ADCvalue = analogRead(NTCPin);
+Voltage = ADCvalue * 0.004882814;
+Serial.print("Analoge ");
+Serial.print(ADCvalue);
+Serial.print(" = ");
+//convert value to resistance
+Resistance = (1023 / ADCvalue) - 1;
+Resistance = SERIESRESISTOR / Resistance;
+Serial.print(Resistance);
+Serial.println(" Ohm");
+
+float steinhart;
+float steinhartF;
+steinhart = Resistance / NOMINAL_RESISTANCE; // (R/Ro)
+steinhart = log(steinhart); // ln(R/Ro)
+steinhart /= BCOEFFICIENT; // 1/B * ln(R/Ro)
+steinhart += 1.0 / (NOMINAL_TEMPERATURE + 273.15); // + (1/To)
+steinhart = 1.0 / steinhart; // Invert
+steinhart -= 273.15; // convert to C
+steinhartF = steinhart * (9.0 / 5.0) + 32.0; //Convert degrees Celsius to Fahrenheit 
+  
+  Serial.print("Voltage: ");
+  Serial.print(Voltage);
+  Serial.print("  steinhart: ");
+  Serial.print(steinhart);
+  Serial.print("  steinhartF: ");
+  Serial.println(steinhartF);
+
+
+  digitalWrite(7, LOW);
+  digitalWrite(6, LOW);
+  digitalWrite(5, LOW);
+  digitalWrite(4, LOW);
+
+  if (steinhartF >= 71)
+  {
+    digitalWrite(5, HIGH);
+  }
+  else if  (steinhartF <= 68)
+  {
+    digitalWrite(7, HIGH);
+  }
+  else
+  {
+    digitalWrite(6, HIGH);
+  }
+  
+  delay(1000); // repeat once per second (change as you wish!)
+}
